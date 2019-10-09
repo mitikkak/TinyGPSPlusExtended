@@ -1,0 +1,9 @@
+[submodule "TinyGPSPlus"]
+	path = TinyGPSPlus
+	url = https://github.com/mikalhart/TinyGPSPlus.git
+[submodule "googletest"]
+	path = googletest
+	url = https://github.com/google/googletest.git
+[submodule "arduino_cmake"]
+	path = arduino_cmake
+	url = https://github.com/mitikkak/arduino_cmake.git
