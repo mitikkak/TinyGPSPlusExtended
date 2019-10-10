@@ -73,3 +73,29 @@ TEST_F(TestTinyGpsPlus, encodeGGA_FiveSatellitesAndFix)
     EXPECT_EQ(true, gps->satellites.isUpdated());
     EXPECT_EQ(5, gps->satellites.value());
 }
+TEST_F(TestTinyGpsPlus, encodeCustomGSV_NineSatsInViewOneId)
+{
+    std::string s{"$GPGSV,3,3,09,30,71,180,19*44\n"};
+    TinyGPSCustom satsInView(*gps, "GPGSV", 3);
+    TinyGPSCustom satId(*gps, "GPGSV", 4);
+    encode(s);
+    EXPECT_EQ(true, satsInView.isUpdated());
+    EXPECT_EQ(true, satsInView.isValid());
+    EXPECT_STREQ("09", satsInView.value());
+    EXPECT_EQ(true, satId.isUpdated());
+    EXPECT_EQ(true, satId.isValid());
+    EXPECT_STREQ("30", satId.value());
+}
+
+TEST_F(TestTinyGpsPlus, encodeGSV_TwoSatsInView)
+{
+    std::string s{"$GPGSV,1,1,02,07,,,32,21,,,31*7C\n"};
+    encode(s);
+    EXPECT_EQ(true, gps->satsInView.isUpdated());
+    EXPECT_EQ(true, gps->satsInView.isValid());
+    EXPECT_EQ(2, gps->satsInView.numOf());
+    EXPECT_EQ(7, gps->satsInView[0].id());
+    EXPECT_STREQ("32", gps->satsInView[0].snr().c_str());
+    EXPECT_EQ(21, gps->satsInView[1].id());
+    EXPECT_STREQ("31", gps->satsInView[1].snr().c_str());
+}
