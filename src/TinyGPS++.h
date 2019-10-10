@@ -221,14 +221,16 @@ class SatsInView
 {
     friend class TinyGPSPlus;
     static const unsigned int MAX_SATS{30};
+    static const int INVALID_ID{-1};
     class SatInView
     {
         public:
         SatInView(): id_{}, snr_{}{}
-        SatInView(const int& _id, const STRING& _snr): id_{_id}, snr_{_snr}{}
+        SatInView(const int _id, const STRING& _snr): id_{_id}, snr_{_snr}{}
         const int& id() const { return id_; }
         int& id() { return id_; }
         const STRING& snr() const { return snr_; }
+        STRING& snr() { return snr_; }
         private:
         int id_;
         STRING snr_;
@@ -247,14 +249,17 @@ public:
         }
         return invalidSat;
     }
+    SatInView& findSat(const int id);
     void setNumOf(const char *term);
     void addSatId(const char *term);
+    void addSnr(const char *term);
 private:
     bool updated;
     bool valid;
     unsigned int numSats;
     SatInView sats[MAX_SATS];
     SatInView invalidSat;
+    SatInView* prevSat;
 };
 
 class TinyGPSPlus
