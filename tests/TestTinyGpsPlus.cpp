@@ -6,11 +6,13 @@ class TestTinyGpsPlus : public ::testing::Test
 {
 public:
     TestTinyGpsPlus()
-    : gps{nullptr}
+    : gps{nullptr},
+      charsProcessed{0}
     {}
     void SetUp()
     {
         gps = new TinyGPSPlus();
+        charsProcessed = 0;
     }
     void TearDown()
     {
@@ -23,9 +25,11 @@ protected:
         {
             gps->encode(c);
         }
-        EXPECT_EQ(s.size(), gps->charsProcessed());
+        charsProcessed += s.size();
+        EXPECT_EQ(charsProcessed, gps->charsProcessed());
     }
     TinyGPSPlus* gps;
+    int charsProcessed;
 };
 TEST_F(TestTinyGpsPlus, construct)
 {
@@ -87,15 +91,64 @@ TEST_F(TestTinyGpsPlus, encodeCustomGSV_NineSatsInViewOneId)
     EXPECT_STREQ("30", satId.value());
 }
 
-TEST_F(TestTinyGpsPlus, encodeGSV_TwoSatsInView)
+TEST_F(TestTinyGpsPlus, encodeGSV_TwoSatsTwice)
 {
-    std::string s{"$GPGSV,1,1,02,07,,,32,21,,,31*7C\n"};
-    encode(s);
+    std::string s1{"$GPGSV,1,1,02,07,,,32,21,,,31*7C\n"};
+    std::string s2{"$GPGSV,1,1,02,07,,,35,21,,,37*7C\n"};
+    encode(s1);
+    encode(s2);
     EXPECT_EQ(true, gps->satsInView.isUpdated());
     EXPECT_EQ(true, gps->satsInView.isValid());
     EXPECT_EQ(2, gps->satsInView.numOf());
+    EXPECT_EQ(2, gps->satsInView.numOfDb());
     EXPECT_EQ(7, gps->satsInView[0].id());
-    EXPECT_STREQ("32", gps->satsInView[0].snr().c_str());
+    EXPECT_STREQ("35", gps->satsInView[0].snr().c_str());
     EXPECT_EQ(21, gps->satsInView[1].id());
-    EXPECT_STREQ("31", gps->satsInView[1].snr().c_str());
+    EXPECT_STREQ("37", gps->satsInView[1].snr().c_str());
+}
+TEST_F(TestTinyGpsPlus, encodeGSV_FourSats)
+{
+    std::string s{"$GPGSV,1,1,04,07,,,31,17,,,20,21,,,31,27,,,35*7E\n"};
+    encode(s);
+    EXPECT_EQ(true, gps->satsInView.isUpdated());
+    EXPECT_EQ(true, gps->satsInView.isValid());
+    EXPECT_EQ(4, gps->satsInView.numOf());
+    EXPECT_EQ(7, gps->satsInView[0].id());
+    EXPECT_STREQ("31", gps->satsInView[0].snr().c_str());
+    EXPECT_EQ(17, gps->satsInView[1].id());
+    EXPECT_STREQ("20", gps->satsInView[1].snr().c_str());
+    EXPECT_EQ(21, gps->satsInView[2].id());
+    EXPECT_STREQ("31", gps->satsInView[2].snr().c_str());
+    EXPECT_EQ(27, gps->satsInView[3].id());
+    EXPECT_STREQ("35", gps->satsInView[3].snr().c_str());
+}
+TEST_F(TestTinyGpsPlus, encodeGSV_NineSatsInThreeSentences)
+{
+    std::string s1{"$GPGSV,3,1,09,05,45,242,14,07,57,095,33,08,21,080,31,09,12,126,13*72\n"};
+    std::string s2{"$GPGSV,3,2,09,13,39,278,27,15,09,295,,21,18,341,29,27,24,040,26*76\n"};
+    std::string s3{"$GPGSV,3,3,09,30,71,180,22*4C\n"};
+    encode(s1);
+    encode(s2);
+    encode(s3);
+    EXPECT_EQ(true, gps->satsInView.isUpdated());
+    EXPECT_EQ(true, gps->satsInView.isValid());
+    EXPECT_EQ(9, gps->satsInView.numOf());
+    EXPECT_EQ(5, gps->satsInView[0].id());
+    EXPECT_STREQ("14", gps->satsInView[0].snr().c_str());
+    EXPECT_EQ(7, gps->satsInView[1].id());
+    EXPECT_STREQ("33", gps->satsInView[1].snr().c_str());
+    EXPECT_EQ(8, gps->satsInView[2].id());
+    EXPECT_STREQ("31", gps->satsInView[2].snr().c_str());
+    EXPECT_EQ(9, gps->satsInView[3].id());
+    EXPECT_STREQ("13", gps->satsInView[3].snr().c_str());
+    EXPECT_EQ(13, gps->satsInView[4].id());
+    EXPECT_STREQ("27", gps->satsInView[4].snr().c_str());
+    EXPECT_EQ(15, gps->satsInView[5].id());
+    EXPECT_STREQ("0", gps->satsInView[5].snr().c_str());
+    EXPECT_EQ(21, gps->satsInView[6].id());
+    EXPECT_STREQ("29", gps->satsInView[6].snr().c_str());
+    EXPECT_EQ(27, gps->satsInView[7].id());
+    EXPECT_STREQ("26", gps->satsInView[7].snr().c_str());
+    EXPECT_EQ(30, gps->satsInView[8].id());
+    EXPECT_STREQ("22", gps->satsInView[8].snr().c_str());
 }

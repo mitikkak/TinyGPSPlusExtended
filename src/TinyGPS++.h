@@ -240,6 +240,7 @@ public:
     bool isUpdated() const { return updated; }
     bool isValid() const { return valid; }
     unsigned int numOf() const { return numSats; }
+    unsigned int numOfDb() const;
     void commit();
     const SatInView& operator[](const int i) const
     {
@@ -254,6 +255,8 @@ public:
     void addSatId(const char *term);
     void addSnr(const char *term);
 private:
+    SatInView* findNewSat(const int id);
+    SatInView* findExistingSat(const int id);
     bool updated;
     bool valid;
     unsigned int numSats;

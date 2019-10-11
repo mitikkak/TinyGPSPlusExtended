@@ -282,10 +282,14 @@ bool TinyGPSPlus::endOfTermHandler()
       break;
     case COMBINE(GPS_SENTENCE_GPGSV, 4): // Id of Satellite @1 (GPGSV)
     case COMBINE(GPS_SENTENCE_GPGSV, 8): // Id of Satellite @2 (GPGSV)
+    case COMBINE(GPS_SENTENCE_GPGSV, 12): // Id of Satellite @3 (GPGSV)
+    case COMBINE(GPS_SENTENCE_GPGSV, 16): // Id of Satellite @4 (GPGSV)
       satsInView.addSatId(term);
       break;
     case COMBINE(GPS_SENTENCE_GPGSV, 7): // Id of Satellite @1 (GPGSV)
     case COMBINE(GPS_SENTENCE_GPGSV, 11): // Id of Satellite @2 (GPGSV)
+    case COMBINE(GPS_SENTENCE_GPGSV, 15): // Id of Satellite @3 (GPGSV)
+    case COMBINE(GPS_SENTENCE_GPGSV, 19): // Id of Satellite @4 (GPGSV)
       satsInView.addSnr(term);
       break;
   }
@@ -542,16 +546,38 @@ void SatsInView::addSatId(const char *term)
 }
 SatsInView::SatInView& SatsInView::findSat(const int id)
 {
+    SatInView* sat = findExistingSat(id);
+    if (not sat)
+    {
+        sat = findNewSat(id);
+    }
+    return *sat;
+}
+SatsInView::SatInView* SatsInView::findExistingSat(const int id)
+{
+    for(SatInView& sat : sats)
+    {
+        if(sat.id() == id)
+        {
+            prevSat = &sat;
+            return prevSat;
+        }
+    }
+    return nullptr;
+}
+SatsInView::SatInView* SatsInView::findNewSat(const int id)
+{
     prevSat = &sats[0];
     for(SatInView& sat : sats)
     {
+        
         if(sat.id() == INVALID_ID)
         {
             prevSat = &sat;
             break;
         }
     }
-    return *prevSat;
+    return prevSat;
 }
 void SatsInView::addSnr(const char *term)
 {
@@ -559,4 +585,16 @@ void SatsInView::addSnr(const char *term)
     {
         prevSat->snr() = STRING{term};
     }
+}
+unsigned int SatsInView::numOfDb() const
+{
+    unsigned int total = 0;
+    for(const SatInView& sat : sats)
+    {
+        if(sat.id() != INVALID_ID)
+        {
+            total++;
+        }
+    }
+    return total;
 }
