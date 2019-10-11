@@ -265,6 +265,19 @@ private:
     SatInView* prevSat;
 };
 
+class Vtg
+{
+public:
+    bool isUpdated() const { return updated; }
+    bool isValid() const { return valid; }
+    void commit() { updated = valid = true;}
+    const char* courseTrue() const;
+    const char* courseMagnetic() const;
+private:
+    bool updated;
+    bool valid;
+};
+
 class TinyGPSPlus
 {
 public:
@@ -281,6 +294,7 @@ public:
   TinyGPSInteger satellites;
   TinyGPSHDOP hdop;
   SatsInView satsInView;
+  Vtg vtg;
 
   static const char *libraryVersion() { return _GPS_VERSION; }
 
@@ -297,7 +311,7 @@ public:
   uint32_t passedChecksum()   const { return passedChecksumCount; }
 
 private:
-  enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_GPGSV, GPS_SENTENCE_OTHER};
+  enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_GPGSV, GPS_SENTENCE_GPVTG, GPS_SENTENCE_OTHER};
 
   // parsing state variables
   uint8_t parity;

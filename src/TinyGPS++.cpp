@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define _GPRMCterm   "GPRMC"
 #define _GPGGAterm   "GPGGA"
 #define _GPGSVterm   "GPGSV"
+#define _GPVTGterm   "GPVTG"
 #define _GNRMCterm   "GNRMC"
 #define _GNGGAterm   "GNGGA"
 
@@ -194,6 +195,8 @@ bool TinyGPSPlus::endOfTermHandler()
       case GPS_SENTENCE_GPGSV:
         satsInView.commit();
         break;
+      case GPS_SENTENCE_GPVTG:
+        vtg.commit();
       }
 
       // Commit all custom listeners of this sentence type
@@ -219,6 +222,8 @@ bool TinyGPSPlus::endOfTermHandler()
       curSentenceType = GPS_SENTENCE_GPGGA;
     else if (!strcmp(term, _GPGSVterm))
       curSentenceType = GPS_SENTENCE_GPGSV;
+    else if (!strcmp(term, _GPVTGterm))
+      curSentenceType = GPS_SENTENCE_GPVTG;
     else
       curSentenceType = GPS_SENTENCE_OTHER;
 
@@ -598,3 +603,12 @@ unsigned int SatsInView::numOfDb() const
     }
     return total;
 }
+const char* Vtg::courseTrue() const
+{
+    return "NA";
+}
+const char* Vtg::courseMagnetic() const
+{
+    return "NA";
+}
+

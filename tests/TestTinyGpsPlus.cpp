@@ -152,3 +152,12 @@ TEST_F(TestTinyGpsPlus, encodeGSV_NineSatsInThreeSentences)
     EXPECT_EQ(30, gps->satsInView[8].id());
     EXPECT_STREQ("22", gps->satsInView[8].snr().c_str());
 }
+TEST_F(TestTinyGpsPlus, encodeVTG_empty)
+{
+    std::string s{"$GPVTG,,,,,,,,,N*30\n"};
+    encode(s);
+    EXPECT_EQ(true, gps->vtg.isUpdated());
+    EXPECT_EQ(true, gps->vtg.isValid());
+    EXPECT_STREQ("NA", gps->vtg.courseTrue());
+    EXPECT_STREQ("NA", gps->vtg.courseMagnetic());
+}
