@@ -265,17 +265,19 @@ private:
     SatInView* prevSat;
 };
 
-class Vtg
+class GroundSpeed
 {
 public:
+    GroundSpeed(): val{0.0}{}
     bool isUpdated() const { return updated; }
     bool isValid() const { return valid; }
     void commit() { updated = valid = true;}
-    const char* courseTrue() const;
-    const char* courseMagnetic() const;
+    double value() { updated = false; return val; }
+    void set(const char*);
 private:
     bool updated;
     bool valid;
+    double val;
 };
 
 class TinyGPSPlus
@@ -294,7 +296,7 @@ public:
   TinyGPSInteger satellites;
   TinyGPSHDOP hdop;
   SatsInView satsInView;
-  Vtg vtg;
+  GroundSpeed groundSpeed;
 
   static const char *libraryVersion() { return _GPS_VERSION; }
 

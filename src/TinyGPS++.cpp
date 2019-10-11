@@ -196,7 +196,7 @@ bool TinyGPSPlus::endOfTermHandler()
         satsInView.commit();
         break;
       case GPS_SENTENCE_GPVTG:
-        vtg.commit();
+        groundSpeed.commit();
       }
 
       // Commit all custom listeners of this sentence type
@@ -296,6 +296,9 @@ bool TinyGPSPlus::endOfTermHandler()
     case COMBINE(GPS_SENTENCE_GPGSV, 15): // Id of Satellite @3 (GPGSV)
     case COMBINE(GPS_SENTENCE_GPGSV, 19): // Id of Satellite @4 (GPGSV)
       satsInView.addSnr(term);
+      break;
+    case COMBINE(GPS_SENTENCE_GPVTG, 7): // Ground speed km/h (GPVTG)
+      groundSpeed.set(term);
       break;
   }
 
@@ -603,12 +606,7 @@ unsigned int SatsInView::numOfDb() const
     }
     return total;
 }
-const char* Vtg::courseTrue() const
+void GroundSpeed::set(const char* term)
 {
-    return "NA";
+    val = atof(term);
 }
-const char* Vtg::courseMagnetic() const
-{
-    return "NA";
-}
-

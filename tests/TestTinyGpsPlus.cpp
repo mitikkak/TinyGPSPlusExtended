@@ -152,12 +152,19 @@ TEST_F(TestTinyGpsPlus, encodeGSV_NineSatsInThreeSentences)
     EXPECT_EQ(30, gps->satsInView[8].id());
     EXPECT_STREQ("22", gps->satsInView[8].snr().c_str());
 }
-TEST_F(TestTinyGpsPlus, encodeVTG_empty)
+TEST_F(TestTinyGpsPlus, encodeGroundSpeed_empty)
 {
     std::string s{"$GPVTG,,,,,,,,,N*30\n"};
     encode(s);
-    EXPECT_EQ(true, gps->vtg.isUpdated());
-    EXPECT_EQ(true, gps->vtg.isValid());
-    EXPECT_STREQ("NA", gps->vtg.courseTrue());
-    EXPECT_STREQ("NA", gps->vtg.courseMagnetic());
+    EXPECT_EQ(true, gps->groundSpeed.isUpdated());
+    EXPECT_EQ(true, gps->groundSpeed.isValid());
+    EXPECT_EQ(0.0, gps->groundSpeed.value());
+}
+TEST_F(TestTinyGpsPlus, encodeVTG_groundSpeed)
+{
+    std::string s{"$GPVTG,,T,,M,0.866,N,1.605,K,A*29\n"};
+    encode(s);
+    EXPECT_EQ(true, gps->groundSpeed.isUpdated());
+    EXPECT_EQ(true, gps->groundSpeed.isValid());
+    EXPECT_DOUBLE_EQ(1.605, gps->groundSpeed.value());
 }
