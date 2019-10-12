@@ -237,6 +237,7 @@ class SatsInView
     };
 public:
     SatsInView();
+    void init();
     bool isUpdated() const { return updated; }
     bool isValid() const { return valid; }
     unsigned int numOf() const { return numSats; }
@@ -256,12 +257,11 @@ public:
     void addSnr(const char *term);
 private:
     SatInView* findNewSat(const int id);
-    SatInView* findExistingSat(const int id);
     bool updated;
     bool valid;
     unsigned int numSats;
     SatInView sats[MAX_SATS];
-    SatInView invalidSat;
+    const SatInView invalidSat;
     SatInView* prevSat;
 };
 
@@ -285,7 +285,9 @@ class Gsa
 public:
     Gsa(): updated{false}, valid{false}, numSats_{0}, pdop_{0.0}, vdop_{0.0}, hdop_{0.0}, fix_{}
     {
+        init();
     }
+    void init();
     bool isUpdated() const { return updated; }
     bool isValid() const { return valid; }
     void commit() { updated = valid = true;}

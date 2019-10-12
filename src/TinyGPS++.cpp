@@ -289,6 +289,9 @@ bool TinyGPSPlus::endOfTermHandler()
     case COMBINE(GPS_SENTENCE_GPGGA, 9): // Altitude (GPGGA)
       altitude.set(term);
       break;
+    case COMBINE(GPS_SENTENCE_GPGSV, 2): // Sentence number (GPGSV)
+      if (1 == atoi(term)) { satsInView.init(); } // begin new group
+      break;
     case COMBINE(GPS_SENTENCE_GPGSV, 3): // Number of satellites (GPGSV)
       satsInView.setNumOf(term);
       break;
@@ -308,6 +311,7 @@ bool TinyGPSPlus::endOfTermHandler()
       groundSpeed.set(term);
       break;
     case COMBINE(GPS_SENTENCE_GPGSA, 2): // Fix (GPGSA)
+      gsa.init(); // new sentence begins
       gsa.setFix(term);
       break;
     case COMBINE(GPS_SENTENCE_GPGSA, 3): // Sat id @1 (GPGSA)
@@ -567,14 +571,19 @@ void TinyGPSPlus::insertCustom(TinyGPSCustom *pElt, const char *sentenceName, in
    pElt->next = *ppelt;
    *ppelt = pElt;
 }
-SatsInView::SatsInView(): updated{false}, valid{false}, numSats{0}, sats{}, invalidSat{INVALID_ID, "0"}, prevSat{nullptr}
+SatsInView::SatsInView(): updated{false}, valid{false}, invalidSat{INVALID_ID, "0"}
 {
+    init();
+}
+void SatsInView::init()
+{
+    numSats = 0;
+    prevSat = nullptr;
     for(SatInView& sat : sats)
     {
         sat = invalidSat;
     }
 }
-
 void SatsInView::setNumOf(const char *term)
 {
     numSats = atoi(term);
@@ -587,31 +596,15 @@ void SatsInView::addSatId(const char *term)
 }
 SatsInView::SatInView& SatsInView::findSat(const int id)
 {
-    SatInView* sat = findExistingSat(id);
-    if (not sat)
-    {
-        sat = findNewSat(id);
-    }
+    SatInView* sat = findNewSat(id);
     return *sat;
-}
-SatsInView::SatInView* SatsInView::findExistingSat(const int id)
-{
-    for(SatInView& sat : sats)
-    {
-        if(sat.id() == id)
-        {
-            prevSat = &sat;
-            return prevSat;
-        }
-    }
-    return nullptr;
 }
 SatsInView::SatInView* SatsInView::findNewSat(const int id)
 {
     prevSat = &sats[0];
     for(SatInView& sat : sats)
     {
-        
+
         if(sat.id() == INVALID_ID)
         {
             prevSat = &sat;
@@ -683,6 +676,16 @@ void Gsa::setSat(const char* term)
         satId[numSats_] = id;
         numSats_++;
     }
+}
+void Gsa::init()
+{
+    updated = false;
+    valid = false;
+    numSats_ = 0;
+    pdop_ = 0.0;
+    vdop_ = 0.0;
+    hdop_ = 0.0;
+    fix_ = "";
 }
 
 

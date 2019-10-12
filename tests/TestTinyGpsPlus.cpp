@@ -193,3 +193,11 @@ TEST_F(TestTinyGpsPlus, encodeGSA_3dFix7SatsDop)
     EXPECT_DOUBLE_EQ(3.02, gps->gsa.vdop());
     EXPECT_EQ(30, gps->gsa.sats()[0]);
 }
+TEST_F(TestTinyGpsPlus, encodeGSA_clearWhenStartingSentence)
+{
+    std::string s1{"$GPGSA,A,3,30,08,21,07,05,27,13,,,,,,3.45,1.67,3.02*0C\n"};
+    std::string s2{"$GPGSA,A,3,30,08,21,07,05,27,13,,,,,,3.45,1.67,3.02*0C\n"};
+    encode(s1);
+    encode(s2);
+    EXPECT_EQ(7, gps->gsa.numSats());
+}
