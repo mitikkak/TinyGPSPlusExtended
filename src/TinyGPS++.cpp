@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define _GPGGAterm   "GPGGA"
 #define _GPGSVterm   "GPGSV"
 #define _GPVTGterm   "GPVTG"
+#define _GPGSAterm   "GPGSA"
 #define _GNRMCterm   "GNRMC"
 #define _GNGGAterm   "GNGGA"
 
@@ -197,6 +198,10 @@ bool TinyGPSPlus::endOfTermHandler()
         break;
       case GPS_SENTENCE_GPVTG:
         groundSpeed.commit();
+        break;
+      case GPS_SENTENCE_GPGSA:
+          gsa.commit();
+          break;
       }
 
       // Commit all custom listeners of this sentence type
@@ -224,6 +229,8 @@ bool TinyGPSPlus::endOfTermHandler()
       curSentenceType = GPS_SENTENCE_GPGSV;
     else if (!strcmp(term, _GPVTGterm))
       curSentenceType = GPS_SENTENCE_GPVTG;
+    else if (!strcmp(term, _GPGSAterm))
+      curSentenceType = GPS_SENTENCE_GPGSA;
     else
       curSentenceType = GPS_SENTENCE_OTHER;
 
@@ -299,6 +306,32 @@ bool TinyGPSPlus::endOfTermHandler()
       break;
     case COMBINE(GPS_SENTENCE_GPVTG, 7): // Ground speed km/h (GPVTG)
       groundSpeed.set(term);
+      break;
+    case COMBINE(GPS_SENTENCE_GPGSA, 2): // Fix (GPGSA)
+      gsa.setFix(term);
+      break;
+    case COMBINE(GPS_SENTENCE_GPGSA, 3): // Sat id @1 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 4): // Sat id @2 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 5): // Sat id @3 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 6): // Sat id @4 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 7): // Sat id @5 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 8): // Sat id @6 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 9): // Sat id @7 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 10): // Sat id @8 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 11): // Sat id @9 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 12): // Sat id @10 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 13): // Sat id @11 (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 14): // Sat id @12 (GPGSA)
+      gsa.setSat(term);
+      break;
+    case COMBINE(GPS_SENTENCE_GPGSA, 15): // PDOP (GPGSA)
+      gsa.setPdop(term);
+      break;
+    case COMBINE(GPS_SENTENCE_GPGSA, 16): // HDOP (GPGSA)
+      gsa.setHdop(term);
+      break;
+    case COMBINE(GPS_SENTENCE_GPGSA, 17): // VDOP (GPGSA)
+      gsa.setVdop(term);
       break;
   }
 
@@ -610,3 +643,47 @@ void GroundSpeed::set(const char* term)
 {
     val = atof(term);
 }
+void Gsa::setFix(const char* term)
+{
+    int val = atoi(term);
+    if (val == 1)
+    {
+        fix_ = "No";
+    }
+    else if (val == 2)
+    {
+        fix_ = "2D";
+    }
+    else if (val == 3)
+    {
+        fix_ = "3D";
+    }
+    else
+    {
+        fix_ = "NA";
+    }
+}
+void Gsa::setPdop(const char* term)
+{
+    pdop_ = atof(term);
+}
+void Gsa::setVdop(const char* term)
+{
+    vdop_ = atof(term);
+}
+void Gsa::setHdop(const char* term)
+{
+    hdop_ = atof(term);
+}
+void Gsa::setSat(const char* term)
+{
+    if (numSats_ < MAX_SATS)
+    {
+        const int id = atoi(term);
+        satId[numSats_] = id;
+        numSats_++;
+    }
+}
+
+
+

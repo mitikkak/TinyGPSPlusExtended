@@ -168,3 +168,28 @@ TEST_F(TestTinyGpsPlus, encodeVTG_groundSpeed)
     EXPECT_EQ(true, gps->groundSpeed.isValid());
     EXPECT_DOUBLE_EQ(1.605, gps->groundSpeed.value());
 }
+TEST_F(TestTinyGpsPlus, encodeGSA_NoFixNoSatsNoDop)
+{
+    std::string s{"$GPGSA,A,1,,,,,,,,,,,,,99.99,99.99,99.99*30\n"};
+    encode(s);
+    EXPECT_EQ(true, gps->gsa.isUpdated());
+    EXPECT_EQ(true, gps->gsa.isValid());
+    EXPECT_STREQ("No", gps->gsa.fix());
+    EXPECT_EQ(0, gps->gsa.numSats());
+    EXPECT_DOUBLE_EQ(99.99, gps->gsa.pdop());
+    EXPECT_DOUBLE_EQ(99.99, gps->gsa.hdop());
+    EXPECT_DOUBLE_EQ(99.99, gps->gsa.vdop());
+}
+TEST_F(TestTinyGpsPlus, encodeGSA_3dFix7SatsDop)
+{
+    std::string s{"$GPGSA,A,3,30,08,21,07,05,27,13,,,,,,3.45,1.67,3.02*0C\n"};
+    encode(s);
+    EXPECT_EQ(true, gps->gsa.isUpdated());
+    EXPECT_EQ(true, gps->gsa.isValid());
+    EXPECT_STREQ("3D", gps->gsa.fix());
+    EXPECT_EQ(7, gps->gsa.numSats());
+    EXPECT_DOUBLE_EQ(3.45, gps->gsa.pdop());
+    EXPECT_DOUBLE_EQ(1.67, gps->gsa.hdop());
+    EXPECT_DOUBLE_EQ(3.02, gps->gsa.vdop());
+    EXPECT_EQ(30, gps->gsa.sats()[0]);
+}

@@ -217,10 +217,10 @@ private:
 };
 
 typedef std::string STRING;
+static const unsigned int MAX_SATS{30};
 class SatsInView
 {
     friend class TinyGPSPlus;
-    static const unsigned int MAX_SATS{30};
     static const int INVALID_ID{-1};
     class SatInView
     {
@@ -268,7 +268,7 @@ private:
 class GroundSpeed
 {
 public:
-    GroundSpeed(): val{0.0}{}
+    GroundSpeed(): updated{false}, valid{false}, val{0.0}{}
     bool isUpdated() const { return updated; }
     bool isValid() const { return valid; }
     void commit() { updated = valid = true;}
@@ -278,6 +278,35 @@ private:
     bool updated;
     bool valid;
     double val;
+};
+
+class Gsa
+{
+public:
+    Gsa(): updated{false}, valid{false}, numSats_{0}, pdop_{0.0}, vdop_{0.0}, hdop_{0.0}, fix_{}
+    {
+    }
+    bool isUpdated() const { return updated; }
+    bool isValid() const { return valid; }
+    void commit() { updated = valid = true;}
+    const char* fix() const { return fix_; }
+    int numSats() const { return numSats_; }
+    double pdop() const { return pdop_; };
+    double vdop() const { return vdop_; };
+    double hdop() const { return hdop_; };
+    void setFix(const char*);
+    void setPdop(const char*);
+    void setVdop(const char*);
+    void setHdop(const char*);
+    void setSat(const char*);
+    const int* sats() const { return satId; }
+private:
+    bool updated;
+    bool valid;
+    int numSats_;
+    int satId[MAX_SATS];
+    double pdop_, vdop_, hdop_;
+    const char* fix_;
 };
 
 class TinyGPSPlus
@@ -297,6 +326,7 @@ public:
   TinyGPSHDOP hdop;
   SatsInView satsInView;
   GroundSpeed groundSpeed;
+  Gsa gsa;
 
   static const char *libraryVersion() { return _GPS_VERSION; }
 
@@ -313,7 +343,7 @@ public:
   uint32_t passedChecksum()   const { return passedChecksumCount; }
 
 private:
-  enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_GPGSV, GPS_SENTENCE_GPVTG, GPS_SENTENCE_OTHER};
+  enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_GPGSV, GPS_SENTENCE_GPVTG, GPS_SENTENCE_GPGSA, GPS_SENTENCE_OTHER};
 
   // parsing state variables
   uint8_t parity;
