@@ -180,6 +180,18 @@ TEST_F(TestTinyGpsPlus, encodeGSA_NoFixNoSatsNoDop)
     EXPECT_DOUBLE_EQ(99.99, gps->gsa.hdop());
     EXPECT_DOUBLE_EQ(99.99, gps->gsa.vdop());
 }
+TEST_F(TestTinyGpsPlus, encodeGSA_2dFix4SatsLargeDop)
+{
+    std::string s{"$GPGSA,A,2,30,21,07,27,,,,,,,,,37.86,17.72,33.45*39\n"};
+    encode(s);
+    EXPECT_EQ(true, gps->gsa.isUpdated());
+    EXPECT_EQ(true, gps->gsa.isValid());
+    EXPECT_STREQ("2D", gps->gsa.fix());
+    EXPECT_EQ(4, gps->gsa.numSats());
+    EXPECT_DOUBLE_EQ(37.86, gps->gsa.pdop());
+    EXPECT_DOUBLE_EQ(17.72, gps->gsa.hdop());
+    EXPECT_DOUBLE_EQ(33.45, gps->gsa.vdop());
+}
 TEST_F(TestTinyGpsPlus, encodeGSA_3dFix7SatsDop)
 {
     std::string s{"$GPGSA,A,3,30,08,21,07,05,27,13,,,,,,3.45,1.67,3.02*0C\n"};

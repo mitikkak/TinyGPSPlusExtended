@@ -165,6 +165,7 @@ bool TinyGPSPlus::endOfTermHandler()
   if (isChecksumTerm)
   {
     byte checksum = 16 * fromHex(term[0]) + fromHex(term[1]);
+    //printf("%u vs %u \n", checksum, parity);
     if (checksum == parity)
     {
       passedChecksumCount++;
