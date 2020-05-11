@@ -291,7 +291,11 @@ bool TinyGPSPlus::endOfTermHandler()
       altitude.set(term);
       break;
     case COMBINE(GPS_SENTENCE_GPGSV, 2): // Sentence number (GPGSV)
-      if (1 == atoi(term)) { satsInView.init(); } // begin new group
+      if (1 == atoi(term)) // begin new group
+      {
+          satsInView.numMsgs++;
+          satsInView.init();
+      }
       break;
     case COMBINE(GPS_SENTENCE_GPGSV, 3): // Number of satellites (GPGSV)
       satsInView.setNumOf(term);
@@ -311,8 +315,12 @@ bool TinyGPSPlus::endOfTermHandler()
     case COMBINE(GPS_SENTENCE_GPVTG, 7): // Ground speed km/h (GPVTG)
       groundSpeed.set(term);
       break;
-    case COMBINE(GPS_SENTENCE_GPGSA, 2): // Fix (GPGSA)
+    case COMBINE(GPS_SENTENCE_GPGSA, 1): // Mode (GPGSA)
       gsa.init(); // new sentence begins
+      gsa.setMode(term);
+      gsa.amount()++;
+      break;
+    case COMBINE(GPS_SENTENCE_GPGSA, 2): // Fix (GPGSA)
       gsa.setFix(term);
       break;
     case COMBINE(GPS_SENTENCE_GPGSA, 3): // Sat id @1 (GPGSA)
@@ -572,7 +580,7 @@ void TinyGPSPlus::insertCustom(TinyGPSCustom *pElt, const char *sentenceName, in
    pElt->next = *ppelt;
    *ppelt = pElt;
 }
-SatsInView::SatsInView(): updated{false}, valid{false}, invalidSat{INVALID_ID, "0"}
+SatsInView::SatsInView(): updated{false}, valid{false}, invalidSat{INVALID_ID, "0"}, numMsgs{0}
 {
     init();
 }
@@ -637,24 +645,32 @@ void GroundSpeed::set(const char* term)
 {
     val = atof(term);
 }
+void Gsa::setMode(const char* term)
+{
+    mode_ = term[0];
+}
+const char Gsa::fixNone[]{"No"};
+const char Gsa::fix2d[]{"2D"};
+const char Gsa::fix3d[]{"3D"};
+const char Gsa::fixNotApplicable[]{"N/A"};
 void Gsa::setFix(const char* term)
 {
     int val = atoi(term);
     if (val == 1)
     {
-        fix_ = "No";
+        fix_ = fixNone;
     }
     else if (val == 2)
     {
-        fix_ = "2D";
+        fix_ = fix2d;
     }
     else if (val == 3)
     {
-        fix_ = "3D";
+        fix_ = fix3d;
     }
     else
     {
-        fix_ = "NA";
+        fix_ = fixNotApplicable;
     }
 }
 void Gsa::setPdop(const char* term)
@@ -686,7 +702,8 @@ void Gsa::init()
     pdop_ = 0.0;
     vdop_ = 0.0;
     hdop_ = 0.0;
-    fix_ = "";
+    fix_ = fixNotApplicable;
+    mode_ = "N"[0];
 }
 
 

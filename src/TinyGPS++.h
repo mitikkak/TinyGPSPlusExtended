@@ -240,6 +240,7 @@ public:
     void init();
     bool isUpdated() const { return updated; }
     bool isValid() const { return valid; }
+    unsigned int messageAmount() const { return numMsgs; }
     unsigned int numOf() const { return numSats; }
     unsigned int numOfDb() const;
     void commit();
@@ -263,6 +264,7 @@ private:
     SatInView sats[MAX_SATS];
     const SatInView invalidSat;
     SatInView* prevSat;
+    unsigned int numMsgs;
 };
 
 class GroundSpeed
@@ -283,7 +285,7 @@ private:
 class Gsa
 {
 public:
-    Gsa(): updated{false}, valid{false}, numSats_{0}, pdop_{0.0}, vdop_{0.0}, hdop_{0.0}, fix_{}
+    Gsa(): updated{false}, valid{false}, numSats_{0}, pdop_{0.0}, vdop_{0.0}, hdop_{0.0}, fix_{}, mode_{}, amount_{}
     {
         init();
     }
@@ -292,23 +294,33 @@ public:
     bool isValid() const { return valid; }
     void commit() { updated = valid = true;}
     const char* fix() const { return fix_; }
+    const char mode() const { return mode_; }
     int numSats() const { return numSats_; }
     double pdop() const { return pdop_; };
     double vdop() const { return vdop_; };
     double hdop() const { return hdop_; };
+    void setMode(const char*);
     void setFix(const char*);
     void setPdop(const char*);
     void setVdop(const char*);
     void setHdop(const char*);
     void setSat(const char*);
     const int* sats() const { return satId; }
+    int amount() const { return amount_; }
+    int& amount() { return amount_; }
 private:
     bool updated;
     bool valid;
     int numSats_;
     int satId[MAX_SATS];
     double pdop_, vdop_, hdop_;
+    static const char fixNone[];
+    static const char fixNotApplicable[];
+    static const char fix2d[];
+    static const char fix3d[];
     const char* fix_;
+    char mode_;
+    int amount_;
 };
 
 class TinyGPSPlus
