@@ -11,6 +11,7 @@ set(stub_sources
 )
 set(test_sources
     ${TESTS_DIR}/TestTinyGpsPlus.cpp
+    ${TESTS_DIR}/TestChecksums.cpp
     # Keep this last
     ${TESTS_DIR}/Main.cpp
 )
