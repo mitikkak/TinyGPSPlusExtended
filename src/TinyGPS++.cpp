@@ -422,7 +422,6 @@ void TinyGPSPlus::baudrateTo115200()
     Serial.begin(115200);
     delay(100);
 }
-#endif
 
 void TinyGPSLocation::commit()
 {
