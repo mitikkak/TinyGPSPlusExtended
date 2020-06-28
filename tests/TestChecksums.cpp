@@ -46,6 +46,7 @@ TEST_F(TestChecksums, getChecksum)
     EXPECT_EQ(std::string("*4d"), getChecksum("some random GSV", "$GPGSV,4,4,13,32,08,058,20"));
     getChecksum("switch off GLL", "$PUBX,40,GLL,1,0,0,0,0,0");
     getChecksum("switch on GLL", "$PUBX,40,GLL,1,1,0,0,0,0");
+    getChecksum("switch off GSV", "$PUBX,40,GSV,1,0,0,0,0,0");
 }
 TEST_F(TestChecksums, getChecksumBinary)
 {

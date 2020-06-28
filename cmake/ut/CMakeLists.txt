@@ -8,6 +8,7 @@ set(sources
 set(stub_sources
     ${STUBS_DIR}/Arduino.cpp
     ${STUBS_DIR}/PinEvents.cpp
+    ${STUBS_DIR}/Serial.cpp
 )
 set(test_sources
     ${TESTS_DIR}/TestTinyGpsPlus.cpp
