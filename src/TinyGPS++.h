@@ -355,6 +355,7 @@ public:
   uint32_t sentencesWithFix() const { return sentencesWithFixCount; }
   uint32_t failedChecksum()   const { return failedChecksumCount; }
   uint32_t passedChecksum()   const { return passedChecksumCount; }
+  void baudrateTo115200();
 
 private:
   enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_GPGSV, GPS_SENTENCE_GPVTG, GPS_SENTENCE_GPGSA, GPS_SENTENCE_OTHER};
