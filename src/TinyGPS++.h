@@ -342,6 +342,9 @@ public:
   GroundSpeed groundSpeed;
   Gsa gsa;
 
+  const String sentence_GsvOff;
+  const uint8_t sentence_500msPeriod[14];
+
   static const char *libraryVersion() { return _GPS_VERSION; }
 
   static double distanceBetween(double lat1, double long1, double lat2, double long2);
@@ -355,7 +358,11 @@ public:
   uint32_t sentencesWithFix() const { return sentencesWithFixCount; }
   uint32_t failedChecksum()   const { return failedChecksumCount; }
   uint32_t passedChecksum()   const { return passedChecksumCount; }
-  void baudrateTo115200();
+  void baudrateTo115200() const;
+  void switchOffGsv() const;
+  void periodTo5000ms() const;
+  void sendStringSentence(const String& sentence) const;
+  void sendByteSentence(const uint8_t* sentence, uint32_t const length) const;
 
 private:
   enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_GPGSV, GPS_SENTENCE_GPVTG, GPS_SENTENCE_GPGSA, GPS_SENTENCE_OTHER};

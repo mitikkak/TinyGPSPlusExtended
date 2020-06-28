@@ -48,6 +48,8 @@ TinyGPSPlus::TinyGPSPlus()
   ,  sentencesWithFixCount(0)
   ,  failedChecksumCount(0)
   ,  passedChecksumCount(0)
+  ,  sentence_GsvOff{"$PUBX,40,GSV,1,0,0,0,0,0*58"}
+  ,  sentence_500msPeriod{0xb5, 0x62, 0x6, 0x8, 0x6, 0x0, 0x88, 0x13, 0x1, 0x0, 0x1, 0x0, 0xb1, 0x49}
 {
   term[0] = '\0';
 }
@@ -412,7 +414,7 @@ const char *TinyGPSPlus::cardinal(double course)
 //const char baudTo115200Message[] = {0xb5, 0x62, 0x06, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0xd0, 0x08, 0x00, 0x00, 0x00, 0xc2, 0x01, 0x00, 0x07, 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc4, 0x96, 0xb5, 0x62, 0x06, 0x00, 0x01, 0x00, 0x01, 0x08, 0x22};
 //const char baudTo115200Message[] = {0xB5, 0x62, 0x06, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00, 0x00, 0xD0, 0x08, 0x00, 0x00, 0x00, 0xC2, 0x01, 0x00, 0x07, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0x7E};
 const char* baudTo115200Message = {"$PUBX,41,1,0007,0003,115200,0*18"};
-void TinyGPSPlus::baudrateTo115200()
+void TinyGPSPlus::baudrateTo115200() const
 {
     delay(100);
     Serial.println(baudTo115200Message);
@@ -421,6 +423,26 @@ void TinyGPSPlus::baudrateTo115200()
     delay(100);
     Serial.begin(115200);
     delay(100);
+}
+void TinyGPSPlus::switchOffGsv() const
+{
+    sendStringSentence(sentence_GsvOff);
+}
+void TinyGPSPlus::periodTo5000ms() const
+{
+    sendByteSentence(sentence_500msPeriod, sizeof(sentence_500msPeriod));
+}
+void TinyGPSPlus::sendStringSentence(const String& sentence) const
+{
+    Serial.println(sentence);
+}
+void TinyGPSPlus::sendByteSentence(const uint8_t* sentence, uint32_t const length) const
+{
+    for (int i = 0; i < length; i++)
+    {
+        Serial.write(sentence[i]);
+    }
+    Serial.println();
 }
 void TinyGPSLocation::commit()
 {
