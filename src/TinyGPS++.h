@@ -294,6 +294,7 @@ public:
     bool isValid() const { return valid; }
     void commit() { updated = valid = true;}
     const char* fix() const { return fix_; }
+    bool fixIs3d() const;
     const char mode() const { return mode_; }
     int numSats() const { return numSats_; }
     double pdop() const { return pdop_; };

@@ -740,6 +740,10 @@ void Gsa::init()
     fix_ = fixNotApplicable;
     mode_ = "N"[0];
 }
+bool Gsa::fixIs3d() const
+{
+    return (0 == strcmp(fix3d, fix_));
+}
 
 
 

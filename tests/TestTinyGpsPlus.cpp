@@ -176,6 +176,7 @@ TEST_F(TestTinyGpsPlus, encodeGSA_NoFixNoSatsNoDop)
     EXPECT_EQ(true, gps->gsa.isValid());
     EXPECT_EQ("A"[0], gps->gsa.mode());
     EXPECT_STREQ("No", gps->gsa.fix());
+    EXPECT_FALSE(gps->gsa.fixIs3d());
     EXPECT_EQ(0, gps->gsa.numSats());
     EXPECT_DOUBLE_EQ(99.99, gps->gsa.pdop());
     EXPECT_DOUBLE_EQ(99.99, gps->gsa.hdop());
@@ -189,6 +190,7 @@ TEST_F(TestTinyGpsPlus, encodeGSA_2dFix4SatsLargeDopNoMode)
     EXPECT_EQ(true, gps->gsa.isValid());
     EXPECT_EQ("N"[0], gps->gsa.mode());
     EXPECT_STREQ("2D", gps->gsa.fix());
+    EXPECT_FALSE(gps->gsa.fixIs3d());
     EXPECT_EQ(4, gps->gsa.numSats());
     EXPECT_DOUBLE_EQ(37.86, gps->gsa.pdop());
     EXPECT_DOUBLE_EQ(17.72, gps->gsa.hdop());
@@ -201,6 +203,7 @@ TEST_F(TestTinyGpsPlus, encodeGSA_3dFix7SatsDop)
     EXPECT_EQ(true, gps->gsa.isUpdated());
     EXPECT_EQ(true, gps->gsa.isValid());
     EXPECT_STREQ("3D", gps->gsa.fix());
+    EXPECT_TRUE(gps->gsa.fixIs3d());
     EXPECT_EQ(7, gps->gsa.numSats());
     EXPECT_DOUBLE_EQ(3.45, gps->gsa.pdop());
     EXPECT_DOUBLE_EQ(1.67, gps->gsa.hdop());
