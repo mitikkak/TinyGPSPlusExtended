@@ -676,6 +676,25 @@ unsigned int SatsInView::numOfDb() const
     }
     return total;
 }
+unsigned int SatsInView::totalSnr() const
+{
+    unsigned int total = 0;
+    for(const SatInView& sat : sats)
+    {
+        if(sat.id() != INVALID_ID)
+        {
+            total += sat.snrInt();
+        }
+    }
+    return total;
+}
+unsigned int SatsInView::SatInView::snrInt() const
+{
+    unsigned int ret{};
+    const STRING& s = snr();
+    ret = atoi(s.c_str());
+    return ret;
+}
 void GroundSpeed::set(const char* term)
 {
     val = atof(term);

@@ -24,11 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __TinyGPSPlus_h
 #define __TinyGPSPlus_h
 
-#if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
 #include <limits.h>
 
 #define _GPS_VERSION "1.0.2" // software version of this library
@@ -230,6 +226,7 @@ class SatsInView
         const int& id() const { return id_; }
         int& id() { return id_; }
         const STRING& snr() const { return snr_; }
+        unsigned int snrInt() const;
         STRING& snr() { return snr_; }
         private:
         int id_;
@@ -256,6 +253,7 @@ public:
     void setNumOf(const char *term);
     void addSatId(const char *term);
     void addSnr(const char *term);
+    unsigned int totalSnr() const;
 private:
     SatInView* findNewSat(const int id);
     bool updated;

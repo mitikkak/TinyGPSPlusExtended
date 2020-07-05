@@ -105,6 +105,7 @@ TEST_F(TestTinyGpsPlus, encodeGSV_TwoSatsTwice)
     EXPECT_STREQ("35", gps->satsInView[0].snr().c_str());
     EXPECT_EQ(21, gps->satsInView[1].id());
     EXPECT_STREQ("37", gps->satsInView[1].snr().c_str());
+    EXPECT_EQ(72, gps->satsInView.totalSnr());
 }
 TEST_F(TestTinyGpsPlus, encodeGSV_FourSats)
 {
@@ -121,6 +122,7 @@ TEST_F(TestTinyGpsPlus, encodeGSV_FourSats)
     EXPECT_STREQ("31", gps->satsInView[2].snr().c_str());
     EXPECT_EQ(27, gps->satsInView[3].id());
     EXPECT_STREQ("35", gps->satsInView[3].snr().c_str());
+    EXPECT_EQ(117, gps->satsInView.totalSnr());
 }
 TEST_F(TestTinyGpsPlus, encodeGSV_NineSatsInThreeSentences)
 {
@@ -151,6 +153,7 @@ TEST_F(TestTinyGpsPlus, encodeGSV_NineSatsInThreeSentences)
     EXPECT_STREQ("26", gps->satsInView[7].snr().c_str());
     EXPECT_EQ(30, gps->satsInView[8].id());
     EXPECT_STREQ("22", gps->satsInView[8].snr().c_str());
+    EXPECT_EQ(195, gps->satsInView.totalSnr());
 }
 TEST_F(TestTinyGpsPlus, encodeGroundSpeed_empty)
 {
