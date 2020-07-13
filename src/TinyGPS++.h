@@ -85,6 +85,7 @@ public:
 
    TinyGPSDate() : valid(false), updated(false), date(0)
    {}
+   bool inRange();
 
 private:
    bool valid, updated;
@@ -110,6 +111,7 @@ public:
 
    TinyGPSTime() : valid(false), updated(false), time(0)
    {}
+   bool inRange();
 
 private:
    bool valid, updated;
@@ -326,6 +328,7 @@ class TinyGPSPlus
 {
 public:
   TinyGPSPlus();
+  bool readSerial();
   bool encode(char c); // process one character received from GPS
   TinyGPSPlus &operator << (char c) {encode(c); return *this;}
 

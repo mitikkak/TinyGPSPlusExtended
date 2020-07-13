@@ -58,6 +58,16 @@ TinyGPSPlus::TinyGPSPlus()
 // public methods
 //
 
+bool TinyGPSPlus::readSerial()
+{
+    bool retVal{false};
+    while (Serial.available())
+    {
+        retVal |= encode(Serial.read());
+    }
+    return retVal;
+}
+
 bool TinyGPSPlus::encode(char c)
 {
   ++encodedCharCount;
@@ -498,12 +508,24 @@ void TinyGPSTime::setTime(const char *term)
 {
    newTime = (uint32_t)TinyGPSPlus::parseDecimal(term);
 }
-
 void TinyGPSDate::setDate(const char *term)
 {
    newDate = atol(term);
 }
-
+bool TinyGPSDate::inRange()
+{
+    bool retVal{true};
+    if (valid)
+    {
+        if (year() < 2000 or year() > 2999 or
+            month() > 12 or
+            day() > 31)
+        {
+            retVal = false;
+        }
+    }
+    return retVal;
+}
 uint16_t TinyGPSDate::year()
 {
    updated = false;
@@ -522,7 +544,20 @@ uint8_t TinyGPSDate::day()
    updated = false;
    return date / 10000;
 }
-
+bool TinyGPSTime::inRange()
+{
+    bool retVal{true};
+    if (valid)
+    {
+        if (hour() > 23 or
+            minute() > 59 or
+            second() > 59)
+        {
+            retVal = false;
+        }
+    }
+    return retVal;
+}
 uint8_t TinyGPSTime::hour()
 {
    updated = false;
