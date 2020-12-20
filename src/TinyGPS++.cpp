@@ -49,7 +49,8 @@ TinyGPSPlus::TinyGPSPlus()
   ,  failedChecksumCount(0)
   ,  passedChecksumCount(0)
   ,  sentence_GsvOff{"$PUBX,40,GSV,1,0,0,0,0,0*58"}
-  ,  sentence_500msPeriod{0xb5, 0x62, 0x6, 0x8, 0x6, 0x0, 0x88, 0x13, 0x1, 0x0, 0x1, 0x0, 0xb1, 0x49}
+  ,  sentence_5000msPeriod{0xb5, 0x62, 0x6, 0x8, 0x6, 0x0, 0x88, 0x13, 0x1, 0x0, 0x1, 0x0, 0xb1, 0x49}
+  ,  sentence_100msPeriod{0xb5, 0x62, 0x6, 0x8, 0x6, 0x0, 0x64, 0x0, 0x1, 0x0, 0x1, 0x0, 0x7a, 0x12}
 {
   term[0] = '\0';
 }
@@ -440,7 +441,11 @@ void TinyGPSPlus::switchOffGsv() const
 }
 void TinyGPSPlus::periodTo5000ms() const
 {
-    sendByteSentence(sentence_500msPeriod, sizeof(sentence_500msPeriod));
+    sendByteSentence(sentence_5000msPeriod, sizeof(sentence_5000msPeriod));
+}
+void TinyGPSPlus::periodTo100ms() const
+{
+    sendByteSentence(sentence_100msPeriod, sizeof(sentence_100msPeriod));
 }
 void TinyGPSPlus::sendStringSentence(const String& sentence) const
 {

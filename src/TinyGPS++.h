@@ -345,7 +345,8 @@ public:
   Gsa gsa;
 
   const String sentence_GsvOff;
-  const uint8_t sentence_500msPeriod[14];
+  const uint8_t sentence_5000msPeriod[14];
+  const uint8_t sentence_100msPeriod[14];
 
   static const char *libraryVersion() { return _GPS_VERSION; }
 
@@ -363,6 +364,7 @@ public:
   void baudrateTo115200() const;
   void switchOffGsv() const;
   void periodTo5000ms() const;
+  void periodTo100ms() const;
   void sendStringSentence(const String& sentence) const;
   void sendByteSentence(const uint8_t* sentence, uint32_t const length) const;
 
