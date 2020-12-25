@@ -48,7 +48,14 @@ TinyGPSPlus::TinyGPSPlus()
   ,  sentencesWithFixCount(0)
   ,  failedChecksumCount(0)
   ,  passedChecksumCount(0)
-  ,  sentence_GsvOff{"$PUBX,40,GSV,1,0,0,0,0,0*58"}
+  ,  sentence_GsvOff{"$PUBX,40,GSV,0,0,0,0,0,0*59"}
+  ,  sentence_GsvOn{"$PUBX,40,GSV,0,1,0,0,0,0*58"}
+  ,  sentence_GsaOff{"$PUBX,40,GSA,0,0,0,0,0,0*4E"}
+  ,  sentence_GsaOn{"$PUBX,40,GSA,0,1,0,0,0,0*4F"}
+  ,  sentence_VtgOff{"$PUBX,40,VTG,0,0,0,0,0,0*5E"}
+  ,  sentence_VtgOn{"$PUBX,40,VTG,0,1,0,0,0,0*5F"}
+  ,  sentence_GllOff{"$PUBX,40,GLL,0,0,0,0,0,0*5C"}
+  ,  sentence_GllOn{"$PUBX,40,GLL,0,1,0,0,0,0*5D"}
   ,  sentence_5000msPeriod{0xb5, 0x62, 0x6, 0x8, 0x6, 0x0, 0x88, 0x13, 0x1, 0x0, 0x1, 0x0, 0xb1, 0x49}
   ,  sentence_100msPeriod{0xb5, 0x62, 0x6, 0x8, 0x6, 0x0, 0x64, 0x0, 0x1, 0x0, 0x1, 0x0, 0x7a, 0x12}
 {
@@ -71,6 +78,12 @@ bool TinyGPSPlus::readSerial()
 
 bool TinyGPSPlus::encode(char c)
 {
+    EncodeStatus const status = encodeGiveStatus(c);
+    return (status != EncodeStatus::UNFINISHED);
+}
+
+TinyGPSPlus::EncodeStatus TinyGPSPlus::encodeGiveStatus(char c)
+{
   ++encodedCharCount;
 
   switch(c)
@@ -81,16 +94,16 @@ bool TinyGPSPlus::encode(char c)
   case '\n':
   case '*':
     {
-      bool isValidSentence = false;
+      EncodeStatus status = EncodeStatus::UNFINISHED;
       if (curTermOffset < sizeof(term))
       {
         term[curTermOffset] = 0;
-        isValidSentence = endOfTermHandler();
+        status = endOfTermHandler();
       }
       ++curTermNumber;
       curTermOffset = 0;
       isChecksumTerm = c == '*';
-      return isValidSentence;
+      return status;
     }
     break;
 
@@ -100,17 +113,17 @@ bool TinyGPSPlus::encode(char c)
     curSentenceType = GPS_SENTENCE_OTHER;
     isChecksumTerm = false;
     sentenceHasFix = false;
-    return false;
+    return EncodeStatus::UNFINISHED;
 
   default: // ordinary characters
     if (curTermOffset < sizeof(term) - 1)
       term[curTermOffset++] = c;
     if (!isChecksumTerm)
       parity ^= c;
-    return false;
+    return EncodeStatus::UNFINISHED;
   }
 
-  return false;
+  return EncodeStatus::UNFINISHED;
 }
 
 //
@@ -172,8 +185,9 @@ void TinyGPSPlus::parseDegrees(const char *term, RawDegrees &deg)
 
 // Processes a just-completed term
 // Returns true if new sentence has just passed checksum test and is validated
-bool TinyGPSPlus::endOfTermHandler()
+TinyGPSPlus::EncodeStatus TinyGPSPlus::endOfTermHandler()
 {
+  EncodeStatus retValue{EncodeStatus::UNFINISHED};
   // If it's the checksum term, and the checksum checks out, commit
   if (isChecksumTerm)
   {
@@ -196,6 +210,7 @@ bool TinyGPSPlus::endOfTermHandler()
            speed.commit();
            course.commit();
         }
+        retValue = EncodeStatus::RMC;
         break;
       case GPS_SENTENCE_GPGGA:
         time.commit();
@@ -206,30 +221,35 @@ bool TinyGPSPlus::endOfTermHandler()
         }
         satellites.commit();
         hdop.commit();
+        retValue = EncodeStatus::GGA;
         break;
       case GPS_SENTENCE_GPGSV:
         satsInView.commit();
+        retValue = EncodeStatus::GSV;
         break;
       case GPS_SENTENCE_GPVTG:
         groundSpeed.commit();
+        retValue = EncodeStatus::VTG;
         break;
       case GPS_SENTENCE_GPGSA:
           gsa.commit();
+          retValue = EncodeStatus::GSA;
           break;
       }
 
       // Commit all custom listeners of this sentence type
       for (TinyGPSCustom *p = customCandidates; p != NULL && strcmp(p->sentenceName, customCandidates->sentenceName) == 0; p = p->next)
          p->commit();
-      return true;
+      return retValue;
     }
 
     else
     {
       ++failedChecksumCount;
+      retValue = EncodeStatus::INVALID;
     }
 
-    return false;
+    return retValue;
   }
 
   // the first term determines the sentence type
@@ -253,7 +273,7 @@ bool TinyGPSPlus::endOfTermHandler()
     if (customCandidates != NULL && strcmp(customCandidates->sentenceName, term) > 0)
        customCandidates = NULL;
 
-    return false;
+    return retValue;
   }
 
   if (curSentenceType != GPS_SENTENCE_OTHER && term[0])
@@ -366,7 +386,7 @@ bool TinyGPSPlus::endOfTermHandler()
     if (p->termNumber == curTermNumber)
          p->set(term);
 
-  return false;
+  return retValue;
 }
 
 /* static */

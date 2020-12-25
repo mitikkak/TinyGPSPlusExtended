@@ -28,6 +28,16 @@ protected:
         charsProcessed += s.size();
         EXPECT_EQ(charsProcessed, gps->charsProcessed());
     }
+    void encodeAndCheckStatus(const std::string& s, TinyGPSPlus::EncodeStatus const expectedStatus)
+    {
+        for (int i = 0; i < s.length()-1; i++)
+        {
+            TinyGPSPlus::EncodeStatus const gpsStatus = gps->encodeGiveStatus(s[i]);
+            EXPECT_EQ(TinyGPSPlus::EncodeStatus::UNFINISHED, gpsStatus);
+        }
+        TinyGPSPlus::EncodeStatus const gpsStatus = gps->encodeGiveStatus(s[s.length()-1]);
+        EXPECT_EQ(expectedStatus, gpsStatus);
+    }
     TinyGPSPlus* gps;
     int charsProcessed;
 };
@@ -220,4 +230,11 @@ TEST_F(TestTinyGpsPlus, encodeGSA_clearWhenStartingSentence)
     encode(s1);
     encode(s2);
     EXPECT_EQ(7, gps->gsa.numSats());
+}
+TEST_F(TestTinyGpsPlus, encode_EncodeStatus)
+{
+    std::string s1{"$GPRMC,122531.00,A,6504.54347,N,02529.19290,E,0.398,,251220,,,A*7B\n"};
+    std::string s2{"$GPGGA,122531.00,6504.54347,N,02529.19290,E,1,08,2.50,15.8,M,21.0,M,,*63\n"};
+    encodeAndCheckStatus(s1, TinyGPSPlus::EncodeStatus::RMC);
+    encodeAndCheckStatus(s2, TinyGPSPlus::EncodeStatus::GGA);
 }

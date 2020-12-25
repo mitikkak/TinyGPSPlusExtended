@@ -327,9 +327,20 @@ private:
 class TinyGPSPlus
 {
 public:
+  enum class EncodeStatus
+  {
+      UNFINISHED = 0,
+      INVALID = 1,
+      RMC = 2,
+      GGA = 3,
+      GSV = 4,
+      VTG = 5,
+      GSA = 6
+  };
   TinyGPSPlus();
   bool readSerial();
   bool encode(char c); // process one character received from GPS
+  EncodeStatus encodeGiveStatus(char c); // process one character received from GPS
   TinyGPSPlus &operator << (char c) {encode(c); return *this;}
 
   TinyGPSLocation location;
@@ -345,6 +356,13 @@ public:
   Gsa gsa;
 
   const String sentence_GsvOff;
+  const String sentence_GsvOn;
+  const String sentence_GsaOff;
+  const String sentence_GsaOn;
+  const String sentence_VtgOff;
+  const String sentence_VtgOn;
+  const String sentence_GllOff;
+  const String sentence_GllOn;
   const uint8_t sentence_5000msPeriod[14];
   const uint8_t sentence_100msPeriod[14];
 
@@ -394,7 +412,7 @@ private:
 
   // internal utilities
   int fromHex(char a);
-  bool endOfTermHandler();
+  TinyGPSPlus::EncodeStatus endOfTermHandler();
 };
 
 #endif // def(__TinyGPSPlus_h)
