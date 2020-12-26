@@ -335,11 +335,13 @@ public:
       GGA = 3,
       GSV = 4,
       VTG = 5,
-      GSA = 6
+      GSA = 6,
+      GLL = 7
   };
   TinyGPSPlus();
   bool readSerial();
   bool encode(char c); // process one character received from GPS
+  EncodeStatus readSerialGiveStatus();
   EncodeStatus encodeGiveStatus(char c); // process one character received from GPS
   TinyGPSPlus &operator << (char c) {encode(c); return *this;}
 
@@ -354,6 +356,16 @@ public:
   SatsInView satsInView;
   GroundSpeed groundSpeed;
   Gsa gsa;
+  struct Stats
+  {
+      unsigned int rmc{};
+      unsigned int gga{};
+      unsigned int gsa{};
+      unsigned int gsv{};
+      unsigned int gll{};
+      unsigned int vtg{};
+  };
+  Stats stats;
 
   const String sentence_GsvOff;
   const String sentence_GsvOn;
@@ -381,13 +393,14 @@ public:
   uint32_t passedChecksum()   const { return passedChecksumCount; }
   void baudrateTo115200() const;
   void switchOffGsv() const;
+  void setMinimumNmeaSentences() const;
   void periodTo5000ms() const;
   void periodTo100ms() const;
   void sendStringSentence(const String& sentence) const;
   void sendByteSentence(const uint8_t* sentence, uint32_t const length) const;
 
 private:
-  enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_GPGSV, GPS_SENTENCE_GPVTG, GPS_SENTENCE_GPGSA, GPS_SENTENCE_OTHER};
+  enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_GPGSV, GPS_SENTENCE_GPVTG, GPS_SENTENCE_GPGSA, GPS_SENTENCE_GPGLL, GPS_SENTENCE_OTHER};
 
   // parsing state variables
   uint8_t parity;

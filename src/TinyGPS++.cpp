@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define _GPGSVterm   "GPGSV"
 #define _GPVTGterm   "GPVTG"
 #define _GPGSAterm   "GPGSA"
+#define _GPGLLterm   "GPGLL"
 #define _GNRMCterm   "GNRMC"
 #define _GNGGAterm   "GNGGA"
 
@@ -72,6 +73,15 @@ bool TinyGPSPlus::readSerial()
     while (Serial.available())
     {
         retVal |= encode(Serial.read());
+    }
+    return retVal;
+}
+TinyGPSPlus::EncodeStatus TinyGPSPlus::readSerialGiveStatus()
+{
+    EncodeStatus retVal{EncodeStatus::UNFINISHED};
+    while (Serial.available() and retVal == EncodeStatus::UNFINISHED)
+    {
+        retVal = encodeGiveStatus(Serial.read());
     }
     return retVal;
 }
@@ -210,6 +220,7 @@ TinyGPSPlus::EncodeStatus TinyGPSPlus::endOfTermHandler()
            speed.commit();
            course.commit();
         }
+        stats.rmc++;
         retValue = EncodeStatus::RMC;
         break;
       case GPS_SENTENCE_GPGGA:
@@ -221,19 +232,27 @@ TinyGPSPlus::EncodeStatus TinyGPSPlus::endOfTermHandler()
         }
         satellites.commit();
         hdop.commit();
+        stats.gga++;
         retValue = EncodeStatus::GGA;
         break;
       case GPS_SENTENCE_GPGSV:
         satsInView.commit();
         retValue = EncodeStatus::GSV;
+        stats.gsv++;
         break;
       case GPS_SENTENCE_GPVTG:
         groundSpeed.commit();
         retValue = EncodeStatus::VTG;
+        stats.vtg++;
         break;
       case GPS_SENTENCE_GPGSA:
           gsa.commit();
           retValue = EncodeStatus::GSA;
+          stats.gsa++;
+          break;
+      case GPS_SENTENCE_GPGLL:
+          stats.gll++;
+          retValue = EncodeStatus::GLL;
           break;
       }
 
@@ -265,6 +284,8 @@ TinyGPSPlus::EncodeStatus TinyGPSPlus::endOfTermHandler()
       curSentenceType = GPS_SENTENCE_GPVTG;
     else if (!strcmp(term, _GPGSAterm))
       curSentenceType = GPS_SENTENCE_GPGSA;
+    else if (!strcmp(term, _GPGLLterm))
+        curSentenceType = GPS_SENTENCE_GPGLL;
     else
       curSentenceType = GPS_SENTENCE_OTHER;
 
@@ -458,6 +479,13 @@ void TinyGPSPlus::baudrateTo115200() const
 void TinyGPSPlus::switchOffGsv() const
 {
     sendStringSentence(sentence_GsvOff);
+}
+void TinyGPSPlus::setMinimumNmeaSentences() const
+{
+    sendStringSentence(sentence_GsvOff);
+    sendStringSentence(sentence_GsaOff);
+    sendStringSentence(sentence_VtgOff);
+    sendStringSentence(sentence_GllOff);
 }
 void TinyGPSPlus::periodTo5000ms() const
 {
