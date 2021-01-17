@@ -356,6 +356,7 @@ public:
   SatsInView satsInView;
   GroundSpeed groundSpeed;
   Gsa gsa;
+  bool ggaFix;
   struct Stats
   {
       unsigned int rmc{};

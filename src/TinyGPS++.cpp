@@ -334,6 +334,14 @@ TinyGPSPlus::EncodeStatus TinyGPSPlus::endOfTermHandler()
       break;
     case COMBINE(GPS_SENTENCE_GPGGA, 6): // Fix data (GPGGA)
       sentenceHasFix = term[0] > '0';
+      if (term[0] == '1')
+      {
+          ggaFix = true;
+      }
+      else
+      {
+          ggaFix = false;
+      }
       break;
     case COMBINE(GPS_SENTENCE_GPGGA, 7): // Satellites used (GPGGA)
       satellites.set(term);
